@@ -1,9 +1,10 @@
-import { createStore } from 'redux'
+import { createStore, applyMiddleware } from 'redux'
 import { createSelector, createStructuredSelector } from 'reselect'
 import { createAction } from 'redux-actions'
 import { connect } from 'react-redux'
 import { produce } from 'immer'
 import { get } from 'lodash/fp'
+import thunk from 'redux-thunk'
 
 const initialState = {
   todos: [2],
@@ -12,29 +13,35 @@ const initialState = {
 // UTILS
 
 const handleActions =
-  (handlers, defaultState) =>
+  (actions, defaultState) =>
   (state = defaultState, action) =>
   produce(state, draft => {
-    const handler = handlers[action.type]
+    const handler = actions[action.type]
     return handler && handler(draft, action)
   })
 
 export const attach = (selectors, dispatchers, component) =>
   connect(createStructuredSelector(selectors), dispatchers)(component)
 
+// HANDLERS
+
+export const createTodo = () => async (dispatch) => {
+  dispatch(todoCreated())
+}
+
 // ACTIONS
 
-export const createTodo = createAction('CREATE_TODO')
+export const todoCreated = createAction('TODO_CREATED')
 
 // STORE
 
 const reducer = handleActions({
-  [createTodo]: (draft, action) => {
+  [todoCreated]: (draft, action) => {
     draft.todos.push(1)
   }
 }, initialState)
 
-const store = createStore(reducer)
+const store = createStore(reducer, applyMiddleware(thunk))
 
 // SELECTORS
 
