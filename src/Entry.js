@@ -1,5 +1,6 @@
 import React from 'react'
 import { Font } from 'expo'
+import { Provider } from 'react-redux'
 
 import App from './App'
 import store from './redux'
@@ -27,7 +28,9 @@ export default class Entry extends React.Component {
     }
 
     return (
-      <App />
+      <Provider store={store}>
+        <App />
+      </Provider>
     )
   }
 }
