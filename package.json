@@ -11,6 +11,7 @@
   "dependencies": {
     "expo": "^31.0.2",
     "immer": "^1.7.4",
+    "moment": "^2.22.2",
     "native-base": "^2.8.1",
     "prop-types": "^15.6.2",
     "react": "16.5.0",

@@ -13,10 +13,10 @@ const initialState = {
 // UTILS
 
 const handleActions =
-  (actions, defaultState) =>
+  (handlers, defaultState) =>
   (state = defaultState, action) =>
   produce(state, draft => {
-    const handler = actions[action.type]
+    const handler = handlers[action.type]
     return handler && handler(draft, action)
   })
 
