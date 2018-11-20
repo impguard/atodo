@@ -1,6 +1,5 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { selectTodos, createTodo, attach } from '../redux'
 import {
   Container,
   Header,
@@ -13,12 +12,23 @@ import {
   Content,
   Text,
 } from 'native-base'
+import {
+  selectTodos,
+  selectEvents,
+  createTodo,
+  attach,
+} from '../redux'
+
 
 class BacklogBase extends React.Component {
   static propTypes = {
     navigation: PropTypes.object.isRequired,
     todos: PropTypes.array.isRequired,
     createTodo: PropTypes.func.isRequired,
+  }
+
+  createTodo = (name, points) => {
+    this.props.createTodo({ name, points })
   }
 
   render() {
@@ -42,8 +52,8 @@ class BacklogBase extends React.Component {
 
         <Content padder>
           <Text>Hello my man...</Text>
-          <Text>{this.props.todos}</Text>
-          <Button onPress={() => this.props.createTodo()}>
+          <Text>{this.props.todos.map(todo => todo.name)}</Text>
+          <Button onPress={() => this.createTodo('hi', 3)}>
             <Icon name="add" />
           </Button>
         </Content>
@@ -55,6 +65,7 @@ class BacklogBase extends React.Component {
 
 export default attach({
   todos: selectTodos,
+  events: selectEvents,
 }, {
   createTodo,
 }, BacklogBase)
