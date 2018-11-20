@@ -1,4 +1,3 @@
-import React from 'react'
 import {
   createDrawerNavigator,
   createAppContainer,
@@ -15,7 +14,7 @@ const Drawer = createDrawerNavigator(
   },
   {
     initialRouteName: 'Backlog',
-  }
+  },
 )
 
 const App = createAppContainer(Drawer)

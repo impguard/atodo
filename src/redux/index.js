@@ -3,7 +3,7 @@ import { createStructuredSelector } from 'reselect'
 import { connect } from 'react-redux'
 import { createAction } from 'redux-actions'
 import { produce } from 'immer'
-import { get } from 'lodash/fp'
+import { get, map, toString } from 'lodash/fp'
 import * as moment from 'moment'
 
 const initialState = {
@@ -46,8 +46,8 @@ const reducer = handleActions({
 }, initialState)
 
 
-const events = new Set(['CREATE_TODO'])
-const append = store => next => action => {
+const events = new Set(map(toString, [createTodo]))
+const appender = store => next => action => {
   if (!events.has(action.type)) {
     return next(action)
   }
@@ -65,7 +65,7 @@ const append = store => next => action => {
   return next(event)
 }
 
-const store = createStore(reducer, applyMiddleware(append))
+const store = createStore(reducer, applyMiddleware(appender))
 
 // SELECTORS
 export const selectTodos = get('todos')
