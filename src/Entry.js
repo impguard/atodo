@@ -1,3 +1,4 @@
+/* eslint global-require: off */
 import React from 'react'
 import { Font } from 'expo'
 import { Provider } from 'react-redux'
@@ -8,14 +9,14 @@ import store from './redux'
 
 export default class Entry extends React.Component {
   state = {
-    loading: true
+    loading: true,
   }
 
   async componentDidMount() {
     await Font.loadAsync({
-      'Roboto': require('native-base/Fonts/Roboto.ttf'),
-      'Roboto_medium': require('native-base/Fonts/Roboto_medium.ttf'),
-    });
+      Roboto: require('native-base/Fonts/Roboto.ttf'),
+      Roboto_medium: require('native-base/Fonts/Roboto_medium.ttf'),
+    })
 
     this.setState({ loading: false })
   }

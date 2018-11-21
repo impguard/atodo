@@ -3,7 +3,7 @@
   "extends": "airbnb",
   "rules": {
     "semi": ["error", "never"],
-    "arrow-parens": ["error", "as-needed"],
+    "arrow-parens": "off",
     "no-param-reassign": ["error", {
       "props": true,
       "ignorePropertyModificationsFor": ["draft"]
@@ -14,6 +14,7 @@
     "react/forbid-prop-types": "off",
     "react/jsx-filename-extension": "off",
     "react/destructuring-assignment": "off",
-    "import/prefer-default-export": "off"
+    "import/prefer-default-export": "off",
+    "no-underscore-dangle": "off"
   }
 }

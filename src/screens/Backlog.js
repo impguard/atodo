@@ -11,10 +11,10 @@ import {
   Right,
   Content,
   Text,
+  Fab,
 } from 'native-base'
 import {
   selectTodos,
-  selectEvents,
   createTodo,
   attach,
 } from '../redux'
@@ -27,14 +27,19 @@ class BacklogBase extends React.Component {
     createTodo: PropTypes.func.isRequired,
   }
 
-  createTodo = (name, points) => {
-    this.props.createTodo({ name, points })
-  }
+  renderTodo = (todo) => (
+    <Text>{todo.name}</Text>
+  )
+
+  renderRightMenu = () => (
+    <Button>
+      <Icon name="add" />
+    </Button>
+  )
 
   render() {
     return (
       <Container>
-
         <Header>
           <Left>
             <Button
@@ -50,14 +55,12 @@ class BacklogBase extends React.Component {
           <Right />
         </Header>
 
-        <Content padder>
-          <Text>Hello my man...</Text>
-          <Text>{this.props.todos.map(todo => todo.name)}</Text>
-          <Button onPress={() => this.createTodo('hi', 3)}>
-            <Icon name="add" />
-          </Button>
+        <Content>
         </Content>
 
+        <Fab onPress={() => this.props.createTodo('hi', 3)}>
+          <Icon name="add" />
+        </Fab>
       </Container>
     )
   }
@@ -65,7 +68,6 @@ class BacklogBase extends React.Component {
 
 export default attach({
   todos: selectTodos,
-  events: selectEvents,
 }, {
   createTodo,
 }, BacklogBase)
