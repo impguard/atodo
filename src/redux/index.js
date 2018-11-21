@@ -6,6 +6,7 @@ import { produce } from 'immer'
 import { get, map, toString } from 'lodash/fp'
 import * as moment from 'moment'
 import uuidv4 from 'uuid/v4'
+import { _keyEq } from '../utils'
 
 const initialState = {
   todos: [],
@@ -33,6 +34,7 @@ export const createTodo = createAction('CREATE_TODO', (name, points) => ({
   name,
   points,
 }))
+export const deleteTodo = createAction('DELETE_TODO', (id) => ({ id }))
 export const appendEvent = createAction('APPEND_EVENT')
 
 // Store
@@ -44,10 +46,14 @@ const reducer = handleActions({
   [createTodo]: (draft, action) => {
     draft.todos.push(action.payload)
   },
+  [deleteTodo]: (draft, action) => {
+    const index = draft.todos.findIndex(_keyEq('id', action.payload.id))
+    draft.todos.splice(index, 1)
+  },
 }, initialState)
 
 
-const events = new Set(map(toString, [createTodo]))
+const events = new Set(map(toString, [createTodo, deleteTodo]))
 const appender = store => next => action => {
   if (!events.has(action.type)) {
     return next(action)
