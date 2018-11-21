@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import styled from 'styled-components/native'
 import { produce } from 'immer'
 import { FlatList } from 'react-native'
 import {
@@ -15,6 +16,9 @@ import {
   Text,
   Fab,
   ListItem,
+  Input,
+  Item,
+  Form,
 } from 'native-base'
 import { get, mapKeys } from 'lodash/fp'
 import {
@@ -23,13 +27,6 @@ import {
   deleteTodo,
   attach,
 } from '../redux'
-
-// Internall keep track of selected state
-// Will render color changes when selected
-// Also allow one to "upgrade to sprint"
-// Also allow one to "delete"
-// Confirm delete
-// Upgrade to sprint marks it as part of a sprint
 
 class BacklogBase extends React.Component {
   static propTypes = {
@@ -40,7 +37,19 @@ class BacklogBase extends React.Component {
   }
 
   state = {
+    entry: false,
+    task: '',
+    point: '',
     selected: {},
+  }
+
+  createTodo = () => {
+    this.props.createTodo(this.state.task, this.state.point)
+    this.setState({
+      entry: false,
+      task: '',
+      point: '',
+    })
   }
 
   selectTodo = (id) => {
@@ -53,10 +62,22 @@ class BacklogBase extends React.Component {
     }))
   }
 
-  removeTodos = () => {
+  deleteTodos = () => {
+    mapKeys(this.props.deleteTodo, this.state.selected)
+    this.setState({ selected: [] })
+  }
+
+  updateTask = (task) => {
+    this.setState({ task })
+  }
+
+  updatePoint = (point) => {
+    this.setState({ point })
+  }
+
+  toggleEntry = () => {
     this.setState(produce(draft => {
-      mapKeys(this.props.deleteTodo, draft.selected)
-      draft.selected = []
+      draft.entry = !draft.entry
     }))
   }
 
@@ -79,6 +100,46 @@ class BacklogBase extends React.Component {
     )
   }
 
+  renderEntryForm = () => {
+    if (!this.state.entry) {
+      return null
+    }
+
+    return (
+      <Form>
+        <Item last>
+          <Input
+            placeholder="Task"
+            value={this.state.task}
+            onChangeText={this.updateTask}
+            autoFocus
+          />
+          <Input
+            placeholder="Point"
+            value={this.state.point}
+            onChangeText={this.updatePoint}
+            keyboardType="number-pad"
+          />
+          <Button full success onPress={this.createTodo}>
+            <Text>Add</Text>
+          </Button>
+        </Item>
+      </Form>
+    )
+  }
+
+  renderEntryFab = () => {
+    if (this.state.entry) {
+      return null
+    }
+
+    return (
+      <Fab onPress={this.toggleEntry}>
+        <Icon name="add" />
+      </Fab>
+    )
+  }
+
   render() {
     return (
       <Container>
@@ -97,7 +158,7 @@ class BacklogBase extends React.Component {
           <Right>
             <Button
               transparent
-              onPress={this.removeTodos}
+              onPress={this.deleteTodos}
             >
               <Icon name="trash" />
             </Button>
@@ -116,9 +177,8 @@ class BacklogBase extends React.Component {
           />
         </Content>
 
-        <Fab onPress={() => this.props.createTodo('hi', 3)}>
-          <Icon name="add" />
-        </Fab>
+        { this.renderEntryFab() }
+        { this.renderEntryForm() }
       </Container>
     )
   }
