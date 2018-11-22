@@ -21,6 +21,7 @@ import {
   selectTodos,
   createTodo,
   deleteTodo,
+  assignTodo,
   attach,
 } from '../redux'
 
@@ -34,6 +35,7 @@ class BacklogBase extends React.Component {
     todos: PropTypes.array.isRequired,
     createTodo: PropTypes.func.isRequired,
     deleteTodo: PropTypes.func.isRequired,
+    assignTodo: PropTypes.func.isRequired,
   }
 
   state = {
@@ -67,6 +69,11 @@ class BacklogBase extends React.Component {
 
   handleDeleteTodos = () => {
     mapKeys(this.props.deleteTodo, this.state.selected)
+    this.handleCancelSelect()
+  }
+
+  handleAssignTodos = () => {
+    mapKeys(this.props.assignTodo, this.state.selected)
     this.handleCancelSelect()
   }
 
@@ -107,7 +114,7 @@ class BacklogBase extends React.Component {
     }
 
     return (
-      <Fab onPress={this.handleAssign}>
+      <Fab onPress={this.handleAssignTodos}>
         <Icon type="FontAwesome" name="level-up" />
       </Fab>
     )
@@ -250,4 +257,5 @@ export default attach({
 }, {
   createTodo,
   deleteTodo,
+  assignTodo,
 }, BacklogBase)

@@ -34,6 +34,9 @@ class TodoList extends React.Component {
     const { selected } = this.props
 
     const isSelected = selected[todo.id]
+    const assigned = todo.assigned
+      ? 'assigned'
+      : null
 
     return (
       <ListItem
@@ -44,7 +47,7 @@ class TodoList extends React.Component {
           <Text>{todo.name}</Text>
         </Left>
         <Right>
-          <Text>{todo.listing}</Text>
+          <Text>{assigned}</Text>
           <Text>{todo.points}</Text>
         </Right>
       </ListItem>

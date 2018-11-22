@@ -3,7 +3,7 @@ import { createStructuredSelector } from 'reselect'
 import { connect } from 'react-redux'
 import { createAction } from 'redux-actions'
 import { produce } from 'immer'
-import { get, map, toString } from 'lodash/fp'
+import { get, map, toString, findIndex } from 'lodash/fp'
 import * as moment from 'moment'
 import uuidv4 from 'uuid/v4'
 import { _keyEq } from '../utils'
@@ -14,18 +14,21 @@ const initialState = {
       id: 'one',
       name: 'Wash the dishes',
       points: '3',
+      assigned: false,
       listing: 'backlog',
     },
     {
       id: 'two',
       name: 'Deal with Aaron',
       points: '8',
+      assigned: false,
       listing: 'backlog',
     },
     {
       id: 'three',
       name: 'Kiss spin',
       points: '1',
+      assigned: false,
       listing: 'backlog',
     },
   ],
@@ -61,9 +64,12 @@ export const createTodo = createAction('CREATE_TODO', (payload) => {
 })
 
 export const deleteTodo = createAction('DELETE_TODO', (id) => ({ id }))
+export const assignTodo = createAction('ASSIGN_TODO', (id) => ({ id }))
 export const appendEvent = createAction('APPEND_EVENT')
 
 // Store
+
+const findTodoIndex = (id, todos) => findIndex(_keyEq('id', id), todos)
 
 const reducer = handleActions({
   [appendEvent]: (draft, action) => {
@@ -72,14 +78,18 @@ const reducer = handleActions({
   [createTodo]: (draft, action) => {
     draft.todos.push(action.payload)
   },
+  [assignTodo]: (draft, action) => {
+    const index = findTodoIndex(action.payload.id, draft.todos)
+    draft.todos[index].assigned = true
+  },
   [deleteTodo]: (draft, action) => {
-    const index = draft.todos.findIndex(_keyEq('id', action.payload.id))
+    const index = findTodoIndex(action.payload.id, draft.todos)
     draft.todos.splice(index, 1)
   },
 }, initialState)
 
 
-const events = new Set(map(toString, [createTodo, deleteTodo]))
+const events = new Set(map(toString, [createTodo, deleteTodo, assignTodo]))
 const appender = store => next => action => {
   if (!events.has(action.type)) {
     return next(action)
