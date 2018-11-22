@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { produce } from 'immer'
-import { Alert } from 'react-native'
+import { Alert, Keyboard } from 'react-native'
 import {
   Container,
   Header,
@@ -77,6 +77,13 @@ class BacklogBase extends React.Component {
     })
   }
 
+  handleCancelCreate = () => {
+    this.setState({
+      mode: MODE_NORMAL,
+    })
+    Keyboard.dismiss()
+  }
+
   handleSwitchMode = (mode) => {
     this.setState({ mode })
   }
@@ -114,6 +121,7 @@ class BacklogBase extends React.Component {
     return (
       <TodoCreator
         onSubmit={this.handleCreateTodo}
+        onCancel={this.handleCancelCreate}
       />
     )
   }

@@ -5,6 +5,7 @@ import { isEmpty } from 'lodash/fp'
 import {
   View,
   TextInput,
+  Keyboard,
 } from 'react-native'
 import {
   Button,
@@ -50,10 +51,12 @@ const SendButton = styled(Button)`
 class TodoCreator extends React.Component {
   static propTypes = {
     onSubmit: PropTypes.func.isRequired,
+    onCancel: PropTypes.func,
     onDirty: PropTypes.func,
   }
 
   static defaultProps = {
+    onCancel: () => {},
     onDirty: () => {},
   }
 
@@ -62,29 +65,33 @@ class TodoCreator extends React.Component {
     points: '',
   }
 
-  onSubmit = () => {
+  componentDidMount() {
+    this.keyboardListener = Keyboard.addListener('keyboardDidHide', this.props.onCancel)
+  }
+
+  componentWillUnmount() {
+    this.keyboardListener.remove()
+  }
+
+  handleSubmit = () => {
     const { name, points } = this.state
     this.props.onSubmit(name, points)
   }
 
-  onChange = () => {
-    const { name, points } = this.state
-    if (isEmpty(name) && isEmpty(points)) {
-      this.props.onDirty(false)
-    } else {
-      this.props.onDirty(true)
-    }
+  handleDirty = (name, points) => {
+    const isDirty = !isEmpty(name) || !isEmpty(points)
+    this.props.onDirty(isDirty)
   }
 
-  updateName = (name) => {
+  handleUpdateName = (name) => {
     this.setState({ name })
   }
 
-  updatePoints = (points) => {
+  handleUpdatePoints = (points) => {
     this.setState({ points })
   }
 
-  focusPoints = () => {
+  handlePointsFocus = () => {
     this.refs.points.focus()
   }
 
@@ -96,8 +103,8 @@ class TodoCreator extends React.Component {
           placeholder="Task"
           placeholderTextColor="#575757"
           returnKeyType="next"
-          onSubmitEditing={this.focusPoints}
-          onChangeText={this.updateName}
+          onSubmitEditing={this.handlePointsFocus}
+          onChangeText={this.handleUpdateName}
           blurOnSubmit={false}
           autoFocus
         />
@@ -108,12 +115,12 @@ class TodoCreator extends React.Component {
           placeholderTextColor="#575757"
           keyboardType="number-pad"
           returnKeyType="send"
-          onChangeText={this.updatePoints}
-          onSubmitEditing={this.onSubmit}
+          onChangeText={this.handleUpdatePoints}
+          onSubmitEditing={this.handleSubmit}
         />
         <SendButton
           transparent
-          onPress={this.onSubmit}
+          onPress={this.handleSubmit}
         >
           <Icon name="send" />
         </SendButton>

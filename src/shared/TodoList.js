@@ -24,6 +24,7 @@ class TodoList extends React.Component {
 
     return (
       <ListItem
+        keyboardShouldPersistTaps="always"
         selected={isSelected}
         onPress={() => onSelectTodo(todo.id)}
       >
