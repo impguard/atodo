@@ -31,7 +31,7 @@ const handleActions =
 
 export const createTodo = createAction('CREATE_TODO', (payload) => {
   const id = uuidv4()
-  const { name, points, listing = 'backlog' } = payload
+  const { name, points, listing } = payload
 
   return {
     id,

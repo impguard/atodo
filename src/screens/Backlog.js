@@ -1,8 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import styled from 'styled-components/native'
 import { produce } from 'immer'
-import { FlatList } from 'react-native'
 import {
   Container,
   Header,
@@ -13,14 +11,11 @@ import {
   Content,
   Button,
   Icon,
-  Text,
   Fab,
-  ListItem,
-  Input,
-  Item,
-  Form,
 } from 'native-base'
-import { get, mapKeys } from 'lodash/fp'
+import { mapKeys } from 'lodash/fp'
+import TodoCreator from '../shared/TodoCreator'
+import TodoList from '../shared/TodoList'
 import {
   selectTodos,
   createTodo,
@@ -37,67 +32,35 @@ class BacklogBase extends React.Component {
   }
 
   state = {
-    entry: false,
-    task: '',
-    point: '',
+    entry: true,
     selected: {},
   }
 
-  createTodo = () => {
-    this.props.createTodo(this.state.task, this.state.point)
-    this.setState({
-      entry: false,
-      task: '',
-      point: '',
+  handleCreateTodo = (name, points) => {
+    this.props.createTodo({
+      name,
+      points,
+      listing: 'backlog',
     })
+
+    this.handleEntryToggle()
   }
 
-  selectTodo = (id) => {
+  handleSelectTodo = (id) => {
     this.setState(produce(draft => {
-      if (draft.selected[id]) {
-        delete draft.selected[id]
-      } else {
-        draft.selected[id] = true
-      }
+      draft.selected[id] = !draft.selected[id]
     }))
   }
 
-  deleteTodos = () => {
+  handleDeleteTodos = () => {
     mapKeys(this.props.deleteTodo, this.state.selected)
     this.setState({ selected: [] })
   }
 
-  updateTask = (task) => {
-    this.setState({ task })
-  }
-
-  updatePoint = (point) => {
-    this.setState({ point })
-  }
-
-  toggleEntry = () => {
+  handleEntryToggle = () => {
     this.setState(produce(draft => {
       draft.entry = !draft.entry
     }))
-  }
-
-  renderTodo = (attrs) => {
-    const { item: todo } = attrs
-    const selected = this.state.selected[todo.id]
-
-    return (
-      <ListItem
-        selected={selected}
-        onPress={() => this.selectTodo(todo.id)}
-      >
-        <Left>
-          <Text>{todo.name}</Text>
-        </Left>
-        <Right>
-          <Text>{todo.points}</Text>
-        </Right>
-      </ListItem>
-    )
   }
 
   renderEntryForm = () => {
@@ -106,25 +69,9 @@ class BacklogBase extends React.Component {
     }
 
     return (
-      <Form>
-        <Item last>
-          <Input
-            placeholder="Task"
-            value={this.state.task}
-            onChangeText={this.updateTask}
-            autoFocus
-          />
-          <Input
-            placeholder="Point"
-            value={this.state.point}
-            onChangeText={this.updatePoint}
-            keyboardType="number-pad"
-          />
-          <Button full success onPress={this.createTodo}>
-            <Text>Add</Text>
-          </Button>
-        </Item>
-      </Form>
+      <TodoCreator
+        onSubmit={this.handleCreateTodo}
+      />
     )
   }
 
@@ -134,20 +81,29 @@ class BacklogBase extends React.Component {
     }
 
     return (
-      <Fab onPress={this.toggleEntry}>
+      <Fab onPress={this.handleEntryToggle}>
         <Icon name="add" />
       </Fab>
     )
   }
 
   render() {
+    const {
+      navigation,
+      todos,
+    } = this.props
+
+    const {
+      selected,
+    } = this.state
+
     return (
-      <Container>
+      <Container keyboardShouldPersistTaps="always">
         <Header>
           <Left>
             <Button
               transparent
-              onPress={() => this.props.navigation.openDrawer()}
+              onPress={() => navigation.openDrawer()}
             >
               <Icon name="ios-menu" />
             </Button>
@@ -158,7 +114,7 @@ class BacklogBase extends React.Component {
           <Right>
             <Button
               transparent
-              onPress={this.deleteTodos}
+              onPress={this.handleDeleteTodos}
             >
               <Icon name="trash" />
             </Button>
@@ -168,12 +124,11 @@ class BacklogBase extends React.Component {
           </Right>
         </Header>
 
-        <Content>
-          <FlatList
-            data={this.props.todos}
-            extraData={this.state}
-            keyExtractor={get('id')}
-            renderItem={this.renderTodo}
+        <Content keyboardShouldPersistTaps="always">
+          <TodoList
+            todos={todos}
+            selected={selected}
+            onSelectTodo={this.handleSelectTodo}
           />
         </Content>
 
