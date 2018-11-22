@@ -13,20 +13,32 @@ class TodoList extends React.Component {
   static propTypes = {
     todos: PropTypes.array.isRequired,
     selected: PropTypes.object.isRequired,
+    disable: PropTypes.bool,
     onSelectTodo: PropTypes.func.isRequired,
+  }
+
+  static defaultProps = {
+    disable: false,
+  }
+
+  handleSelectTodo = (id) => {
+    if (this.props.disable) {
+      return
+    }
+
+    this.props.onSelectTodo(id)
   }
 
   renderTodo = (attrs) => {
     const { item: todo } = attrs
-    const { selected, onSelectTodo } = this.props
+    const { selected } = this.props
 
     const isSelected = selected[todo.id]
 
     return (
       <ListItem
-        keyboardShouldPersistTaps="always"
         selected={isSelected}
-        onPress={() => onSelectTodo(todo.id)}
+        onPress={() => this.handleSelectTodo(todo.id)}
       >
         <Left>
           <Text>{todo.name}</Text>

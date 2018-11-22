@@ -138,63 +138,108 @@ class BacklogBase extends React.Component {
     )
   }
 
-  renderSelectMenu = () => {
+  renderNormalHeader = () => {
+    if (this.state.mode !== MODE_NORMAL) {
+      return null
+    }
+
+    const { navigation } = this.props
+
+    return (
+      <Header>
+        <Left>
+          <Button
+            transparent
+            onPress={() => navigation.openDrawer()}
+          >
+            <Icon name="ios-menu" />
+          </Button>
+        </Left>
+        <Body>
+          <Title>Backlog</Title>
+        </Body>
+        <Right />
+      </Header>
+    )
+  }
+
+  renderCreateHeader = () => {
+    if (this.state.mode !== MODE_CREATE) {
+      return null
+    }
+
+    return (
+      <Header>
+        <Left>
+          <Button
+            transparent
+            onPress={this.handleCancelCreate}
+          >
+            <Icon name="md-arrow-back" />
+          </Button>
+        </Left>
+        <Right />
+      </Header>
+    )
+  }
+
+  renderSelectHeader = () => {
     if (this.state.mode !== MODE_SELECT) {
       return null
     }
 
     return (
-      <React.Fragment>
-        <Button
-          transparent
-          onPress={this.handleConfirmDeleteTodos}
-        >
-          <Icon name="trash" />
-        </Button>
-      </React.Fragment>
+      <Header>
+        <Left>
+          <Button
+            transparent
+            onPress={this.handleCancelSelect}
+          >
+            <Icon name="md-arrow-back" />
+          </Button>
+        </Left>
+        <Right>
+          <Button
+            transparent
+            onPress={this.handleConfirmDeleteTodos}
+          >
+            <Icon name="trash" />
+          </Button>
+        </Right>
+      </Header>
     )
   }
 
   render() {
     const {
-      navigation,
       todos,
     } = this.props
 
     const {
       selected,
+      mode,
     } = this.state
 
+    const disableTodoList = mode === MODE_CREATE
+
     return (
-      <Container keyboardShouldPersistTaps="always">
-        <Header>
-          <Left>
-            <Button
-              transparent
-              onPress={() => navigation.openDrawer()}
-            >
-              <Icon name="ios-menu" />
-            </Button>
-          </Left>
-          <Body>
-            <Title>Backlog</Title>
-          </Body>
-          <Right>
-            {this.renderSelectMenu()}
-          </Right>
-        </Header>
+      <Container>
+        { this.renderNormalHeader() }
+        { this.renderCreateHeader() }
+        { this.renderSelectHeader() }
 
         <Content keyboardShouldPersistTaps="always">
           <TodoList
             todos={todos}
             selected={selected}
+            disable={disableTodoList}
             onSelectTodo={this.handleSelectTodo}
           />
         </Content>
 
         { this.renderCreateFab() }
-        { this.renderCreateForm() }
         { this.renderAssignFab() }
+        { this.renderCreateForm() }
       </Container>
     )
   }
