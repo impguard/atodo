@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { produce } from 'immer'
+import { Alert } from 'react-native'
 import {
   Container,
   Header,
@@ -13,7 +14,7 @@ import {
   Icon,
   Fab,
 } from 'native-base'
-import { mapKeys } from 'lodash/fp'
+import { mapKeys, isEmpty, size } from 'lodash/fp'
 import TodoCreator from '../shared/TodoCreator'
 import TodoList from '../shared/TodoList'
 import {
@@ -22,6 +23,10 @@ import {
   deleteTodo,
   attach,
 } from '../redux'
+
+const MODE_NORMAL = 'normal'
+const MODE_CREATE = 'create'
+const MODE_SELECT = 'select'
 
 class BacklogBase extends React.Component {
   static propTypes = {
@@ -32,7 +37,7 @@ class BacklogBase extends React.Component {
   }
 
   state = {
-    entry: true,
+    mode: MODE_NORMAL,
     selected: {},
   }
 
@@ -43,28 +48,66 @@ class BacklogBase extends React.Component {
       listing: 'backlog',
     })
 
-    this.handleEntryToggle()
+    this.handleSwitchMode(MODE_NORMAL)
   }
 
   handleSelectTodo = (id) => {
     this.setState(produce(draft => {
-      draft.selected[id] = !draft.selected[id]
+      if (draft.selected[id]) {
+        delete draft.selected[id]
+      } else {
+        draft.selected[id] = true
+      }
+
+      draft.mode = isEmpty(draft.selected)
+        ? MODE_NORMAL
+        : MODE_SELECT
     }))
   }
 
   handleDeleteTodos = () => {
     mapKeys(this.props.deleteTodo, this.state.selected)
-    this.setState({ selected: [] })
+    this.handleCancelSelect()
   }
 
-  handleEntryToggle = () => {
-    this.setState(produce(draft => {
-      draft.entry = !draft.entry
-    }))
+  handleCancelSelect = () => {
+    this.setState({
+      mode: MODE_NORMAL,
+      selected: {},
+    })
   }
 
-  renderEntryForm = () => {
-    if (!this.state.entry) {
+  handleSwitchMode = (mode) => {
+    this.setState({ mode })
+  }
+
+  handleConfirmDeleteTodos = () => {
+    const count = size(this.state.selected)
+
+    Alert.alert(
+      '',
+      `Delete ${count} tasks?`,
+      [
+        { text: 'Cancel', onPress: this.handleCancelSelect },
+        { text: 'OK', onPress: this.handleDeleteTodos },
+      ],
+    )
+  }
+
+  renderAssignFab = () => {
+    if (this.state.mode !== MODE_SELECT) {
+      return null
+    }
+
+    return (
+      <Fab onPress={this.handleAssign}>
+        <Icon type="FontAwesome" name="level-up" />
+      </Fab>
+    )
+  }
+
+  renderCreateForm = () => {
+    if (this.state.mode !== MODE_CREATE) {
       return null
     }
 
@@ -75,15 +118,32 @@ class BacklogBase extends React.Component {
     )
   }
 
-  renderEntryFab = () => {
-    if (this.state.entry) {
+  renderCreateFab = () => {
+    if (this.state.mode !== MODE_NORMAL) {
       return null
     }
 
     return (
-      <Fab onPress={this.handleEntryToggle}>
+      <Fab onPress={() => this.handleSwitchMode(MODE_CREATE)}>
         <Icon name="add" />
       </Fab>
+    )
+  }
+
+  renderSelectMenu = () => {
+    if (this.state.mode !== MODE_SELECT) {
+      return null
+    }
+
+    return (
+      <React.Fragment>
+        <Button
+          transparent
+          onPress={this.handleConfirmDeleteTodos}
+        >
+          <Icon name="trash" />
+        </Button>
+      </React.Fragment>
     )
   }
 
@@ -112,15 +172,7 @@ class BacklogBase extends React.Component {
             <Title>Backlog</Title>
           </Body>
           <Right>
-            <Button
-              transparent
-              onPress={this.handleDeleteTodos}
-            >
-              <Icon name="trash" />
-            </Button>
-            <Button transparent>
-              <Icon name="arrow-round-forward" />
-            </Button>
+            {this.renderSelectMenu()}
           </Right>
         </Header>
 
@@ -132,8 +184,9 @@ class BacklogBase extends React.Component {
           />
         </Content>
 
-        { this.renderEntryFab() }
-        { this.renderEntryForm() }
+        { this.renderCreateFab() }
+        { this.renderCreateForm() }
+        { this.renderAssignFab() }
       </Container>
     )
   }

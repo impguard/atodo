@@ -9,7 +9,26 @@ import uuidv4 from 'uuid/v4'
 import { _keyEq } from '../utils'
 
 const initialState = {
-  todos: [],
+  todos: [
+    {
+      id: 'one',
+      name: 'Wash the dishes',
+      points: '3',
+      listing: 'backlog',
+    },
+    {
+      id: 'two',
+      name: 'Deal with Aaron',
+      points: '8',
+      listing: 'backlog',
+    },
+    {
+      id: 'three',
+      name: 'Kiss spin',
+      points: '1',
+      listing: 'backlog',
+    },
+  ],
   events: [],
 }
 

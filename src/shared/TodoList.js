@@ -31,6 +31,7 @@ class TodoList extends React.Component {
           <Text>{todo.name}</Text>
         </Left>
         <Right>
+          <Text>{todo.listing}</Text>
           <Text>{todo.points}</Text>
         </Right>
       </ListItem>
